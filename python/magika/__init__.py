@@ -23,6 +23,9 @@ Basic usage:
     >>> result = m.identify_bytes(b"# Hello\nprint('world')")
     >>> print(result.output.label)
     python
+
+Note: For batch processing of many files, prefer identify_paths() over
+calling identify_path() in a loop -- it's significantly more efficient.
 """
 
 from magika.magika import Magika
