@@ -26,6 +26,10 @@ Basic usage:
 
 Note: For batch processing of many files, prefer identify_paths() over
 calling identify_path() in a loop -- it's significantly more efficient.
+
+Note: identify_bytes() is convenient for small snippets, but for large
+files reading the full content into memory may be costly; use
+identify_path() or identify_paths() in those cases instead.
 """
 
 from magika.magika import Magika
