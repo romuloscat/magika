@@ -41,8 +41,8 @@ class Magika:
     FEATURE_SIZE_START: int = 512
     # Number of bytes to read from the end of a file for feature extraction
     FEATURE_SIZE_END: int = 512
-    # Minimum confidence threshold for model predictions
-    DEFAULT_PREDICTION_MODE: str = "medium-confidence"
+    # Default to high-confidence to reduce false positives in my use case
+    DEFAULT_PREDICTION_MODE: str = "high-confidence"
 
     def __init__(
         self,
@@ -54,7 +54,7 @@ class Magika:
         Args:
             prediction_mode: Confidence mode for predictions. One of
                 'best-guess', 'medium-confidence', or 'high-confidence'.
-                Defaults to 'medium-confidence'.
+                Defaults to 'high-confidence'.
             no_dereference: If True, do not follow symbolic links.
         """
         self._prediction_mode = prediction_mode or self.DEFAULT_PREDICTION_MODE
@@ -84,89 +84,4 @@ class Magika:
         Args:
             paths: List of file paths to identify.
 
-        Returns:
-            A list of MagikaResult objects, one per input path.
-        """
-        return [self.identify_path(p) for p in paths]
-
-    def identify_bytes(self, content: bytes) -> MagikaResult:
-        """Identify the content type from raw bytes.
-
-        Args:
-            content: The raw bytes of the file content to identify.
-
-        Returns:
-            A MagikaResult containing the detected content type and metadata.
-        """
-        features = self._extract_features_from_bytes(content)
-        return self._run_inference(features, path=None)
-
-    def _identify_file_path(self, path: Path) -> MagikaResult:
-        """Internal method to identify a file given a validated path."""
-        if self._no_dereference and path.is_symlink():
-            # Return a result indicating this is a symlink without following it
-            return MagikaResult.make_symlink(path)
-
-        try:
-            content = path.read_bytes()
-        except PermissionError:
-            return MagikaResult.make_unreadable(path)
-
-        features = self._extract_features_from_bytes(content)
-        return self._run_inference(features, path=path)
-
-    def _extract_features_from_bytes(self, content: bytes) -> ModelFeatures:
-        """Extract model input features from raw bytes.
-
-        Reads bytes from the beginning and end of the content to build
-        the fixed-size feature vector expected by the model.
-
-        Args:
-            content: Raw file bytes.
-
-        Returns:
-            A ModelFeatures object with start/end byte sequences.
-        """
-        start_bytes = content[: self.FEATURE_SIZE_START]
-        end_bytes = content[-self.FEATURE_SIZE_END :] if len(content) > self.FEATURE_SIZE_END else content
-
-        return ModelFeatures(
-            start=list(start_bytes),
-            end=list(end_bytes),
-            size=len(content),
-        )
-
-    def _run_inference(self, features: ModelFeatures, path: Optional[Path]) -> MagikaResult:
-        """Run model inference on extracted features.
-
-        Args:
-            features: Extracted file features.
-            path: Optional path for result metadata.
-
-        Returns:
-            A MagikaResult with the model's prediction.
-        """
-        # Lazy-load the model on first inference call
-        if self._model is None:
-            self._load_model()
-
-        # Placeholder: actual model inference will be implemented with ONNX runtime
-        ct_label = ContentTypeLabel.UNKNOWN
-        score = 0.0
-
-        output = MagikaOutputFields(
-            ct_label=ct_label,
-            mime_type="application/octet-stream",
-            group="unknown",
-            description="Unknown file type",
-            extensions=[],
-            is_text=False,
-            score=score,
-        )
-
-        return MagikaResult(path=path, output=output)
-
-    def _load_model(self) -> None:
-        """Load the ONNX inference model from the bundled assets."""
-        # Model loading will be implemented when model assets are added
-        pass
+       
