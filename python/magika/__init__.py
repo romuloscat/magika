@@ -30,6 +30,10 @@ calling identify_path() in a loop -- it's significantly more efficient.
 Note: identify_bytes() is convenient for small snippets, but for large
 files reading the full content into memory may be costly; use
 identify_path() or identify_paths() in those cases instead.
+
+Note: Results include a score between 0.0 and 1.0 indicating confidence.
+Scores above ~0.9 are generally reliable; lower scores may indicate
+ambiguous or mixed content types.
 """
 
 from magika.magika import Magika
