@@ -41,8 +41,9 @@ class Magika:
     FEATURE_SIZE_START: int = 512
     # Number of bytes to read from the end of a file for feature extraction
     FEATURE_SIZE_END: int = 512
-    # Default to high-confidence to reduce false positives in my use case
-    DEFAULT_PREDICTION_MODE: str = "high-confidence"
+    # Default to medium-confidence; high-confidence misses too many valid types
+    # in my experience with mixed document collections.
+    DEFAULT_PREDICTION_MODE: str = "medium-confidence"
 
     def __init__(
         self,
@@ -54,7 +55,7 @@ class Magika:
         Args:
             prediction_mode: Confidence mode for predictions. One of
                 'best-guess', 'medium-confidence', or 'high-confidence'.
-                Defaults to 'high-confidence'.
+                Defaults to 'medium-confidence'.
             no_dereference: If True, do not follow symbolic links.
         """
         self._prediction_mode = prediction_mode or self.DEFAULT_PREDICTION_MODE
@@ -82,6 +83,4 @@ class Magika:
         """Identify the content types of multiple files.
 
         Args:
-            paths: List of file paths to identify.
-
-       
+            paths: List of file paths to ident
